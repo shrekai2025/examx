@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "~/server/trpc";
-import { login, logout } from "~/lib/session";
+import { login, logout, getSession } from "~/lib/session";
 
 export const authRouter = createTRPCRouter({
   login: publicProcedure
@@ -23,12 +23,13 @@ export const authRouter = createTRPCRouter({
     return { success: true };
   }),
 
-  getSession: publicProcedure.query(async ({ ctx }) => {
+  getSession: publicProcedure.query(async () => {
     try {
+      const session = await getSession();
       return {
-        isLoggedIn: ctx.session?.isLoggedIn || false,
-        username: ctx.session?.username || null,
-        role: ctx.session?.role || null,
+        isLoggedIn: session.isLoggedIn || false,
+        username: session.username || null,
+        role: session.role || null,
       };
     } catch (error) {
       console.error("getSession error:", error);
