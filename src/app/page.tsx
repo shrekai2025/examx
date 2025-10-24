@@ -259,9 +259,6 @@ export default function LearningPage() {
             <div className="rounded-2xl bg-white p-8 shadow-xl">
               {questionType === "image-to-word" ? (
                 <div className="space-y-6">
-                  <h2 className="text-center text-2xl font-semibold text-gray-900">
-                    Choose the correct word
-                  </h2>
                   {currentQuestion?.imagePath && (
                     <div className="flex justify-center">
                       <img
@@ -274,18 +271,12 @@ export default function LearningPage() {
                 </div>
               ) : questionType === "word-to-image" ? (
                 <div className="space-y-6">
-                  <h2 className="text-center text-2xl font-semibold text-gray-900">
-                    Choose the correct image for:
-                  </h2>
                   <div className="text-center text-4xl font-bold text-indigo-600">
                     {currentQuestion?.word}
                   </div>
                 </div>
               ) : questionType === "sentence-to-word" ? (
                 <div className="space-y-6">
-                  <h2 className="text-center text-2xl font-semibold text-gray-900">
-                    Listen and fill in the blank
-                  </h2>
                   <div className="text-center text-3xl font-medium text-gray-800">
                     {sentenceData?.sentenceWithBlank}
                   </div>
@@ -338,7 +329,7 @@ export default function LearningPage() {
             </div>
 
             {/* Options */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               {questionType === "image-to-word" || questionType === "sentence-to-word"
                 ? options.map((option) => (
                     <button
@@ -359,7 +350,7 @@ export default function LearningPage() {
                       key={option.id}
                       onClick={() => handleAnswerSelect(option.word)}
                       disabled={showResult}
-                      className={`rounded-lg border-2 p-4 transition ${
+                      className={`flex items-center justify-center rounded-lg border-2 p-2 transition ${
                         selectedAnswer === option.word
                           ? "border-indigo-600 bg-indigo-50"
                           : "border-gray-300 bg-white hover:border-indigo-400"
@@ -369,7 +360,7 @@ export default function LearningPage() {
                         <img
                           src={option.imagePath}
                           alt={option.word}
-                          className="h-32 w-full rounded object-contain"
+                          className="h-48 w-full rounded object-cover"
                         />
                       )}
                     </button>
