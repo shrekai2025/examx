@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 词汇范围表
+model Vocabulary {
+  id        String   @id @default(cuid())
+  word      String   @unique
+  imagePath String?  // 图片路径
+  audioPath String?  // 音频路径
+  note      String?  // 备注
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联到目标词汇
+  targetVocabularies TargetVocabulary[]
+  // 关联到例句
+  exampleSentences   ExampleSentence[]
+
+  @@index([word])
+}
+
+// 例句表
+model ExampleSentence {
+  id           String      @id @default(cuid())
+  vocabularyId String
+  vocabulary   Vocabulary  @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+  sentence     String      // 例句文本
+  audioPath    String?     // 例句语音路径
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([vocabularyId])
+}
+
+// 目标词汇表（从词汇范围中选择的词汇）
+model TargetVocabulary {
+  id           String   @id @default(cuid())
+  vocabularyId String
+  vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+
+  @@index([vocabularyId])
+}
+
+// 系统配置表
+model SystemConfig {
+  id                    String   @id @default("system")
+  pointsPerQuestion     Int      @default(1) // 每题积分数
+  pointsToRewardRatio   Float    @default(1.0) // 积分兑换奖励金比例
+  maxRewardPerCycle     Float    @default(100.0) // 每周期奖励金上限
+  settlementDay         Int?     // 结算日期（每月几号）
+  settlementInitialized Boolean  @default(false) // 是否已初始化结算周期
+  zhipuApiKey           String?  // 智谱图像生成API Key
+  elevenlabsApiKey      String?  // ElevenLabs 音频生成API Key
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+// 用户状态表
+model UserState {
+  id                 String   @id @default("user")
+  currentPoints      Int      @default(0) // 当前积分
+  currentReward      Float    @default(0.0) // 当前奖励金
+  currentQuestionId  String?  // 当前题目ID（用于断点续答）
+  currentQuestionType String? // 当前题目类型：image-to-word 或 word-to-image
+  sessionCorrect     Int      @default(0) // 本次学习答对数
+  sessionWrong       Int      @default(0) // 本次学习答错数
+  isLearning         Boolean  @default(false) // 是否正在学习中
+  updatedAt          DateTime @updatedAt
+}
+
+// 积分变动日志表
+model PointLog {
+  id            String   @id @default(cuid())
+  changeAmount  Int      // 变动量（正数或负数）
+  balanceAfter  Int      // 变动后余额
+  questionWord  String?  // 如果是答错，记录题目词汇
+  questionType  String?  // 题目类型
+  correctAnswer String?  // 正确答案
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// 结算周期历史表
+model SettlementHistory {
+  id           String   @id @default(cuid())
+  cycleStart   DateTime // 周期开始时间
+  cycleEnd     DateTime // 周期结束时间
+  totalPoints  Int      // 该周期总积分
+  totalReward  Float    // 该周期总奖励金
+  createdAt    DateTime @default(now())
+
+  @@index([cycleEnd])
+}
