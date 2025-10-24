@@ -466,7 +466,7 @@ export default function VocabulariesPage() {
                       <button
                         type="button"
                         onClick={() =>
-                          setLightboxImage({ src: vocab.imagePath, alt: vocab.word })
+                          vocab.imagePath && setLightboxImage({ src: vocab.imagePath, alt: vocab.word })
                         }
                         className="group block"
                       >
